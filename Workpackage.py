@@ -48,6 +48,15 @@ class Date:
                     isequal = True
         return isequal
 
+    def __ne__(self, other):
+        date = Date(other)
+        isnotequal = True
+        if self.day == date.day:
+            if self.month == date.month:
+                if self.year == date.year:
+                    isnotequal = False
+        return isnotequal
+
 
 class Time:
     """ This class gets a time string splits it to its components
@@ -81,6 +90,16 @@ class Time:
         else:
             str_out = "Erwartetes Format: hh.mm.ss"
         return str_out
+
+    def __ne__(self, other):
+        time = Time(other)
+        isnequal = True
+        if self.hour == time.hour:
+            if self.minute == time.minute:
+                if self.second == time.second:
+                    isnequal = False
+        return isnequal
+
 
     @staticmethod
     def convert_seconds_to_time_string(seconds):
