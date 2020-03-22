@@ -100,6 +100,14 @@ class Time:
                     isnequal = False
         return isnequal
 
+    def __eq__(self, other):
+        time = Time(other)
+        isequal = False
+        if self.hour == time.hour:
+            if self.minute == time.minute:
+                if self.second == time.second:
+                    isequal = True
+        return isequal
 
     @staticmethod
     def convert_seconds_to_time_string(seconds):
@@ -298,6 +306,9 @@ class Workpackage:
             wp_duration += wd.get_duration()
         str_out = Time.convert_seconds_to_time_string(wp_duration)
         return str_out
+
+    def __eq__(self, other):
+        return other == self.wp_name
 
     def get_wpckg_duration_str(self):
         wp_duration = 0
