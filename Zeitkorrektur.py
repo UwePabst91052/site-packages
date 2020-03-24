@@ -261,43 +261,40 @@ list_begin = None
 list_end = None
 
 
-def show_correction_dialog(wp_list):
-    global list_wp, list_wd, list_begin, list_end, workpackages
-    workpackages = wp_list
-    root = tk.Tk()
-    root.title("Zeitkorrektur")
-    root.resizable(False, False)
+class CorrectionDialog(tk.Toplevel):
+    def __init__(self, master, wp_list):
+        global list_wp, list_wd, list_begin, list_end, workpackages
+        super().__init__(master)
+        workpackages = wp_list
 
-    list_wp = EditWorkpackage(root, 0, 0, "Arbeitspakete", 20, 'wp')
-    list_wd = EditWorkpackage(root, 0, 2, "Arbeitstage", 10, 'wd')
-    list_begin = EditWorkpackage(root, 0, 3, "Beginn", 8, 'bt')
-    list_end = EditWorkpackage(root, 0, 4, "Ende", 8, 'et')
+        list_wp = EditWorkpackage(self, 0, 0, "Arbeitspakete", 20, 'wp')
+        list_wd = EditWorkpackage(self, 0, 2, "Arbeitstage", 10, 'wd')
+        list_begin = EditWorkpackage(self, 0, 3, "Beginn", 8, 'bt')
+        list_end = EditWorkpackage(self, 0, 4, "Ende", 8, 'et')
 
-    button_apply = tk.Button(root, text='Übernehmen', command=apply_values)
-    button_apply.grid(row=1, column=0, columnspan=2)
+        button_apply = tk.Button(self, text='Übernehmen', command=apply_values)
+        button_apply.grid(row=1, column=0, columnspan=2)
 
-    button_add = tk.Button(root, text='Hinzufügen', command=add_values)
-    button_add.grid(row=1, column=2, columnspan=3)
+        button_add = tk.Button(self, text='Hinzufügen', command=add_values)
+        button_add.grid(row=1, column=2, columnspan=3)
 
-    wp_name_list = []
-    wd_list = []
-    begin_list = []
-    end_list = []
-    for wp in workpackages:
-        wp_name_list.append(wp.wp_name)
-    wp = workpackages[0]
-    for wd in wp.workdays:
-        wd_list.append(str(wd.date))
-    wd = wp.workdays[0]
-    for wt in wd.worktimes:
-        begin_list.append(str(wt.start_time))
-        end_list.append(str(wt.end_time))
-    list_wp.add_items(wp_name_list)
-    list_wd.add_items(wd_list)
-    list_begin.add_items(begin_list)
-    list_end.add_items(end_list)
-
-    root.mainloop()
+        wp_name_list = []
+        wd_list = []
+        begin_list = []
+        end_list = []
+        for wp in workpackages:
+            wp_name_list.append(wp.wp_name)
+        wp = workpackages[0]
+        for wd in wp.workdays:
+            wd_list.append(str(wd.date))
+        wd = wp.workdays[0]
+        for wt in wd.worktimes:
+            begin_list.append(str(wt.start_time))
+            end_list.append(str(wt.end_time))
+        list_wp.add_items(wp_name_list)
+        list_wd.add_items(wd_list)
+        list_begin.add_items(begin_list)
+        list_end.add_items(end_list)
 
 
 def main():
