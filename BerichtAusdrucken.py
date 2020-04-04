@@ -87,6 +87,7 @@ def report_workpackage_summary(wp_name, workpackages):
     for wp in workpackages:
         if wp.wp_name == wp_name:
             print_workpackage_worktimes(wp)
+            print_workpackage_summary(wp)
     return text_output
 
 
@@ -222,6 +223,20 @@ def print_worktime_summary(workpackages):
         row += "| "
         row = create_table_row(sum_col_cfg, row, 1, duration, 'left')
         text_output += print_layout_justify(row, 'center')
+    text_output += frame_seperator
+
+
+def print_workpackage_summary(workpackage):
+    global text_output
+    print_report_title("Summe Arbeitspaket")
+    row = ""
+    # text_output += frame_seperator
+    name, duration = workpackage.get_wpckg_duration_str()
+    row = ""
+    row = create_table_row(sum_col_cfg, row, 0, name, 'left')
+    row += "| "
+    row = create_table_row(sum_col_cfg, row, 1, duration, 'left')
+    text_output += print_layout_justify(row, 'center')
     text_output += frame_seperator
 
 
