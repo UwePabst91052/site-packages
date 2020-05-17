@@ -33,7 +33,7 @@ class TimeSpanDialog(tk.Frame):
         self.rowconfigure(0, weight=1)
 
         self.label_from = tk.Label(self, text="Datum von")
-        self.label_from.grid(row=0,column=0)
+        self.label_from.grid(row=0, column=0)
         self.label_til = tk.Label(self, text="Datum bis")
         self.label_til.grid(row=0, column=1)
 
