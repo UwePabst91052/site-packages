@@ -29,9 +29,9 @@ class Date:
         count = len(date)
         if count >= 2:
             self.day = int(splitted[0])
-            if self.day in range(1, 31):
+            if self.day in range(1, 32):
                 self.month = int(splitted[1])
-                if self.month in range(1, 12):
+                if self.month in range(1, 13):
                     self.is_valid = True
         self.days = self.year * 365 + self.daysOfMonth[self.month] + self.day
 
