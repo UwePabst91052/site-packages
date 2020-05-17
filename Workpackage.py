@@ -15,9 +15,11 @@ class Date:
         stores its components as integer values"""
 
     def __init__(self, str_date):
+        self.daysOfMonth = [0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
         self.day = 0
         self.month = 0
         self.year = 2020
+        self.days = 0
         self.is_valid = False
         self.validate(str_date)
 
@@ -31,6 +33,7 @@ class Date:
                 self.month = int(splitted[1])
                 if self.month in range(1, 12):
                     self.is_valid = True
+        self.days = self.year * 365 + self.daysOfMonth[self.month] + self.day
 
     def __str__(self):
         if self.is_valid:
@@ -56,6 +59,14 @@ class Date:
                 if self.year == date.year:
                     isnotequal = False
         return isnotequal
+
+    def __le__(self, other):
+        date = Date(other)
+        return self.days <= date.days
+
+    def __ge__(self, other):
+        date = Date(other)
+        return self.days >= date.days
 
 
 class Time:
@@ -215,6 +226,10 @@ class Workday:
         self.worktimes.append(new_worktime)
         self.correct_list()
 
+    def delete_worktime(self, index):
+        """ This method deletes the worktime addressed by the given index from list """
+        del self.worktimes[index]
+
     def change_cur_worktime(self, with_worktime):
         """ This method allows to change the current worktime"""
         self.cur_worktime = with_worktime
@@ -243,6 +258,11 @@ class Workday:
         for wt in self.worktimes:
             self.sum_duration += wt.get_duration()
         return self.sum_duration
+
+    def get_workday_balance(self):
+        self.sum_duration = self.get_duration()
+        seven_hours = 7 * 3600
+        return self.sum_duration - seven_hours
 
     def get_duration_str(self):
         """ returns the summarized worktime of the workday in time format """
@@ -317,6 +337,13 @@ class Workpackage:
         str_out = Time.convert_seconds_to_time_string(wp_duration)
         return self.wp_name, str_out
 
+    def get_wpckg_duration_for_date(self, date_str):
+        wd_duration = 0
+        for wd in self.workdays:
+            if wd.date == date_str:
+                wd_duration += wd.get_duration()
+        return wd_duration
+
     def duration_for_date(self, date_str):
         print("Für \"{0}\" haben Sie ".format(self.wp_name, date_str), end="")
         wd_duration = 0
@@ -324,3 +351,10 @@ class Workpackage:
             if wd.date == date_str:
                 wd_duration += wd.get_duration()
         print("{0} gearbeitet".format(Time.convert_seconds_to_time_string(wd_duration)))
+
+    def get_workpackage_balance(self, from_date, til_date):
+        wp_balance = 0
+        for wd in self.workdays:
+            if from_date <= wd.date <= til_date:
+                wp_balance += wd.get_workday_balance()
+        return wp_balance

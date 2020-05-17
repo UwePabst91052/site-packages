@@ -25,6 +25,30 @@ class ReportDialog(tk.Frame):
             self.report_list.insert(tk.END, line)
 
 
+class TimeSpanDialog(tk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+
+        self.label_from = tk.Label(self, text="Datum von")
+        self.label_from.grid(row=0,column=0)
+        self.label_til = tk.Label(self, text="Datum bis")
+        self.label_til.grid(row=0, column=1)
+
+        self.date_begin = tk.StringVar()
+        self.entry_start = tk.Entry(self, width=15)
+        self.entry_start['textvariable'] = self.date_begin
+        self.entry_start.grid(row=1, column=0)
+        self.date_end = tk.StringVar()
+        self.entry_end = tk.Entry(self, width=15)
+        self.entry_end['textvariable'] = self.date_end
+        self.entry_end.grid(row=1, column=1)
+
+        self.grid(row=0, column=0, sticky='NEWS')
+
+
 def display_report(report):
     root = tk.Tk()
     root.title("Zeitnachweis Bericht")
@@ -36,3 +60,17 @@ def display_report(report):
     report_dialog.show_report(report)
 
     root.mainloop()
+
+
+def input_timespan():
+    root = tk.Tk()
+    root.title("Eingabe der Zeitspanne")
+    root.columnconfigure(0, weight=1)
+    root.rowconfigure(0, weight=1)
+
+    input_dialog = TimeSpanDialog(root)
+
+    root.mainloop()
+    from_date = input_dialog.date_begin.get()
+    til_date = input_dialog.date_end.get()
+    return from_date, til_date

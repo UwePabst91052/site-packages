@@ -6,17 +6,17 @@ There are two types of reports:
      - Summary report how much was worked on which days for a work package
 """
 
-# import Workpackage as Wp
+import Workpackage as Wp
 
 frame_seperator = "--------------------------------------------------------------------------------\n"
 line_seperator = "|------------------------------------------------------------------------------|\n"
 empty_line = "|                                                                              |\n"
-table_header = "|   Tag           |  Beginn  |   Ende   |               Gesamt                 |\n"
+table_header = "|   Tag           |  Beginn  |   Ende   |  Saldo   |        Gesamt             |\n"
 text_output = ""
 line_width = 80
-single_col_cfg = (17, 10, 10, 38)
-day_col_cfg = (37, 38)
-sum_col_cfg = (57, 20)
+single_col_cfg = (17, 10, 10, 10, 27)
+day_col_cfg = (38, 10, 26)
+sum_col_cfg = (54, 10, 12)
 
 
 def create_work_dictionary(workpackages):
@@ -42,16 +42,23 @@ def report_work_summary(employee_name, workpackages):
     keylist = list(report.keys())
     from_date = keylist[0]
     until_date = keylist[len(keylist) - 1]
+    text_output = report_work_summary_timespan(employee_name, workpackages, from_date, until_date)
+    return text_output
+
+
+def report_work_summary_timespan(employee_name, workpackages, from_date, until_date):
+    global text_output
+    text_output = ""
     evaluation_period = "Auswertungszeitraum vom {0} bis {1}".format(from_date, until_date)
     print_report_header(employee_name, evaluation_period)
 
     # print all worktimes sorted by date and workpackage
     text_output += "\n"
-    print_single_worktimes(workpackages)
+    print_single_worktimes(workpackages, from_date, until_date)
 
     # print the summary of all worktimes sorted by workpackages
     text_output += "\n"
-    print_worktime_summary(workpackages)
+    print_worktime_summary(workpackages, from_date, until_date)
 
     return text_output
 
@@ -110,7 +117,7 @@ def create_table_row(col_cfg, row, col, text, align):
     return row
 
 
-def print_single_worktimes(workpackages):
+def print_single_worktimes(workpackages, from_date, until_date):
     global text_output
     print_report_title("Einzelergebnisse")
     row = ""
@@ -118,29 +125,37 @@ def print_single_worktimes(workpackages):
         print_report_subject("Arbeitspaket:  {0}".format(wp.wp_name))
         text_output += table_header + frame_seperator
         for wd in wp.workdays:
-            text = str(wd.date)
-            row = create_table_row(single_col_cfg, row, 0, text, 'left')
-            row += "|"
-            count_wt = len(wd.worktimes)
-            if count_wt == 0:
-                continue
-            for wt in wd.worktimes:
-                if count_wt > 1 and len(row) == 0:
-                    row = create_table_row(single_col_cfg, row, 0, "", 'left')
+            if from_date <= wd.date <= until_date:
+                text = str(wd.date)
+                row = create_table_row(single_col_cfg, row, 0, text, 'left')
+                row += "|"
+                count_wt = len(wd.worktimes)
+                if count_wt == 0:
+                    continue
+                for wt in wd.worktimes:
+                    if count_wt > 1 and len(row) == 0:
+                        row = create_table_row(single_col_cfg, row, 0, "", 'left')
+                        row += "|"
+                    wt_strings = str(wt).split(" ", 3)
+                    row = create_table_row(single_col_cfg, row, 1, wt_strings[0], 'center')
                     row += "|"
-                wt_strings = str(wt).split(" ", 3)
-                row = create_table_row(single_col_cfg, row, 1, wt_strings[0], 'center')
+                    row = create_table_row(single_col_cfg, row, 2, wt_strings[1], 'center')
+                    row += "|"
+                    row = create_table_row(single_col_cfg, row, 3, "        ", 'center')
+                    row += "|"
+                    row = create_table_row(single_col_cfg, row, 4, wt_strings[2], 'center')
+                    row += "|\n"
+                    text_output += print_layout_justify(row, 'left')
+                    row = ""
+                row = create_table_row(day_col_cfg, row, 0, "Tages-Summation:", 'center')
                 row += "|"
-                row = create_table_row(single_col_cfg, row, 2, wt_strings[1], 'center')
+                balance = wd.get_workday_balance()
+                balance_str = Wp.Time.convert_seconds_to_time_string(balance)
+                row = create_table_row(single_col_cfg, row, 1, balance_str, 'center')
                 row += "|"
-                row = create_table_row(single_col_cfg, row, 3, wt_strings[2], 'center')
-                text_output += print_layout_justify(row, 'left')
+                row = create_table_row(day_col_cfg, row, 2, wd.get_duration_str(), 'center')
+                text_output += print_layout_justify(row, 'center')
                 row = ""
-            row = create_table_row(day_col_cfg, row, 0, "Tages-Summation:", 'center')
-            row += " "
-            row = create_table_row(day_col_cfg, row, 1, wd.get_duration_str(), 'center')
-            text_output += print_layout_justify(row, 'center')
-            row = ""
         text_output += frame_seperator
 
 
@@ -207,21 +222,27 @@ def print_workpackage_worktimes(wp):
     text_output += frame_seperator
 
 
-def print_worktime_summary(workpackages):
+def print_worktime_summary(workpackages, from_date, until_date):
     global text_output
     print_report_title("Summenübersicht")
     row = ""
     row = create_table_row(sum_col_cfg, row, 0, "Arbeitspaket", 'left')
+    row += "|"
+    row = create_table_row(sum_col_cfg, row, 1, "Saldo", 'center')
     row += "| "
-    row = create_table_row(sum_col_cfg, row, 1, "Summe", 'left')
+    row = create_table_row(sum_col_cfg, row, 2, "Summe", 'left')
     text_output += print_layout_justify(row, 'center')
     text_output += frame_seperator
     for wp in workpackages:
         name, duration = wp.get_wpckg_duration_str()
         row = ""
         row = create_table_row(sum_col_cfg, row, 0, name, 'left')
+        row += "|"
+        balance = wp.get_workpackage_balance(from_date, until_date)
+        balance_str = Wp.Time.convert_seconds_to_time_string(balance)
+        row = create_table_row(sum_col_cfg, row, 1, balance_str, 'center')
         row += "| "
-        row = create_table_row(sum_col_cfg, row, 1, duration, 'left')
+        row = create_table_row(sum_col_cfg, row, 2, duration, 'left')
         text_output += print_layout_justify(row, 'center')
     text_output += frame_seperator
 
