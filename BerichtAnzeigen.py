@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter.simpledialog import *
-from tkinter.dialog import *
 
 class ReportDialog(tk.Frame):
     def __init__(self, parent):
@@ -28,24 +27,26 @@ class ReportDialog(tk.Frame):
 
 class TimeSpanDialog(Dialog):
     def body(self, parent):
-        self.columnconfigure(0, weight=1)
-        self.rowconfigure(0, weight=1)
-
-        self.label_from = tk.Label(self, text="Datum von")
-        self.label_from.grid(row=0,column=0, padx=5, sticky='W')
-        self.label_til = tk.Label(self, text="Datum bis")
-        self.label_til.grid(row=0, column=1, padx=5, sticky='W')
+        self.frame1 = tk.Frame(parent)
+        self.label_from = tk.Label(self.frame1, text="Datum von")
+        self.label_from.pack(anchor='nw')
 
         self.date_begin = tk.StringVar()
-        self.entry_start = tk.Entry(self, width=10)
+        self.entry_start = tk.Entry(self.frame1, width=10)
         self.entry_start['textvariable'] = self.date_begin
-        self.entry_start.grid(row=1, column=0, padx=5, pady=3, sticky='W')
-        self.date_end = tk.StringVar()
-        self.entry_end = tk.Entry(self, width=10)
-        self.entry_end['textvariable'] = self.date_end
-        self.entry_end.grid(row=1, column=1, padx=5, pady=3, sticky='W')
+        self.entry_start.pack()
 
-        self.grid(row=0, column=0, sticky='NEWS')
+        self.frame2 = tk.Frame(parent)
+        self.label_til = tk.Label(self.frame2, text="Datum bis")
+        self.label_til.pack(anchor='nw')
+
+        self.date_end = tk.StringVar()
+        self.entry_end = tk.Entry(self.frame2, width=10)
+        self.entry_end['textvariable'] = self.date_end
+        self.entry_end.pack()
+
+        self.frame1.pack(side='left', padx=10, pady=20)
+        self.frame2.pack(side='left', padx=10, pady=20)
 
         return self.entry_start
 
@@ -71,12 +72,7 @@ def display_report(report):
 def input_timespan(root):
 
     input_dialog = TimeSpanDialog(root,
-                                  title="Zeitspanne eingeben",
-                                  text="ssssss",
-                                  bitmap=DIALOG_ICON,
-                                  default=0,
-                                  buttons=["OK", "Abbrechen"],
-                                  cancel=1)
+                                  title="Zeitspanne eingeben")
     if input_dialog.result is not None:
         from_date = input_dialog.from_date
         til_date = input_dialog.until_date
