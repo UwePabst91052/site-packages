@@ -1,5 +1,6 @@
 import tkinter as tk
-
+from tkinter.simpledialog import *
+from tkinter.dialog import *
 
 class ReportDialog(tk.Frame):
     def __init__(self, parent):
@@ -25,10 +26,8 @@ class ReportDialog(tk.Frame):
             self.report_list.insert(tk.END, line)
 
 
-class TimeSpanDialog(tk.Frame):
-    def __init__(self, parent):
-        super().__init__(parent)
-
+class TimeSpanDialog(Dialog):
+    def body(self, parent):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
 
@@ -48,6 +47,13 @@ class TimeSpanDialog(tk.Frame):
 
         self.grid(row=0, column=0, sticky='NEWS')
 
+        return self.entry_start
+
+    def apply(self):
+        self.from_date = self.date_begin.get()
+        self.until_date = self.date_end.get()
+        self.result = 1
+
 
 def display_report(report):
     root = tk.Tk()
@@ -62,15 +68,18 @@ def display_report(report):
     root.mainloop()
 
 
-def input_timespan():
-    root = tk.Tk()
-    root.title("Zeitspanne eingeben")
-    root.columnconfigure(0, weight=1)
-    root.rowconfigure(0, weight=1)
+def input_timespan(root):
 
-    input_dialog = TimeSpanDialog(root)
-
-    root.mainloop()
-    from_date = input_dialog.date_begin.get()
-    til_date = input_dialog.date_end.get()
-    return from_date, til_date
+    input_dialog = TimeSpanDialog(root,
+                                  title="Zeitspanne eingeben",
+                                  text="ssssss",
+                                  bitmap=DIALOG_ICON,
+                                  default=0,
+                                  buttons=["OK", "Abbrechen"],
+                                  cancel=1)
+    if input_dialog.result is not None:
+        from_date = input_dialog.from_date
+        til_date = input_dialog.until_date
+        return from_date, til_date
+    else:
+        return "xx.xx.yyyy", "aa.bb.cccc"
