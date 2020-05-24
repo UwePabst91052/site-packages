@@ -11,12 +11,12 @@ import Workpackage as Wp
 frame_seperator = "--------------------------------------------------------------------------------\n"
 line_seperator = "|------------------------------------------------------------------------------|\n"
 empty_line = "|                                                                              |\n"
-table_header = "|   Tag           |  Beginn  |   Ende   |  Saldo   |        Gesamt             |\n"
+table_header = "|   Tag           |  Beginn  |   Ende   |  Saldo    |       Gesamt             |\n"
 text_output = ""
 line_width = 80
-single_col_cfg = (17, 10, 10, 10, 27)
-day_col_cfg = (38, 10, 26)
-sum_col_cfg = (54, 10, 12)
+single_col_cfg = (17, 10, 10, 11, 26)
+day_col_cfg = (37, 11, 25)
+sum_col_cfg = (54, 11, 11)
 
 
 def create_work_dictionary(workpackages):
@@ -151,7 +151,7 @@ def print_single_worktimes(workpackages, from_date, until_date):
                 row += "|"
                 balance = wd.get_workday_balance()
                 balance_str = Wp.Time.convert_seconds_to_time_string(balance)
-                row = create_table_row(single_col_cfg, row, 1, balance_str, 'center')
+                row = create_table_row(day_col_cfg, row, 1, balance_str, 'center')
                 row += "|"
                 row = create_table_row(day_col_cfg, row, 2, wd.get_duration_str(), 'center')
                 text_output += print_layout_justify(row, 'center')

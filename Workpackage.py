@@ -122,11 +122,17 @@ class Time:
 
     @staticmethod
     def convert_seconds_to_time_string(seconds):
+        negative = seconds < 0
+        if negative:
+            seconds *= -1
         second = seconds % 60
         seconds //= 60
         minute = seconds % 60
         hour = seconds // 60
-        time_str = "{0:02d}:{1:02d}:{2:02d}".format(hour, minute, second)
+        if negative:
+            time_str = "-{0:02d}:{1:02d}:{2:02d}".format(hour, minute, second)
+        else:
+            time_str = "{0:02d}:{1:02d}:{2:02d}".format(hour, minute, second)
         return time_str
 
     def get_seconds(self):
@@ -262,7 +268,10 @@ class Workday:
     def get_workday_balance(self):
         self.sum_duration = self.get_duration()
         seven_hours = 7 * 3600
-        return self.sum_duration - seven_hours
+        if self.sum_duration >= seven_hours:
+            return self.sum_duration - seven_hours
+        else:
+            return 0 - seven_hours + self.sum_duration
 
     def get_duration_str(self):
         """ returns the summarized worktime of the workday in time format """
