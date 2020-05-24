@@ -1,5 +1,5 @@
 import tkinter as tk
-
+from tkinter.simpledialog import *
 
 class ReportDialog(tk.Frame):
     def __init__(self, parent):
@@ -25,28 +25,35 @@ class ReportDialog(tk.Frame):
             self.report_list.insert(tk.END, line)
 
 
-class TimeSpanDialog(tk.Frame):
-    def __init__(self, parent):
-        super().__init__(parent)
-
-        self.columnconfigure(0, weight=1)
-        self.rowconfigure(0, weight=1)
-
-        self.label_from = tk.Label(self, text="Datum von")
-        self.label_from.grid(row=0, column=0)
-        self.label_til = tk.Label(self, text="Datum bis")
-        self.label_til.grid(row=0, column=1)
+class TimeSpanDialog(Dialog):
+    def body(self, parent):
+        self.frame1 = tk.Frame(parent)
+        self.label_from = tk.Label(self.frame1, text="Datum von")
+        self.label_from.pack(anchor='nw')
 
         self.date_begin = tk.StringVar()
-        self.entry_start = tk.Entry(self, width=15)
+        self.entry_start = tk.Entry(self.frame1, width=10)
         self.entry_start['textvariable'] = self.date_begin
-        self.entry_start.grid(row=1, column=0)
-        self.date_end = tk.StringVar()
-        self.entry_end = tk.Entry(self, width=15)
-        self.entry_end['textvariable'] = self.date_end
-        self.entry_end.grid(row=1, column=1)
+        self.entry_start.pack()
 
-        self.grid(row=0, column=0, sticky='NEWS')
+        self.frame2 = tk.Frame(parent)
+        self.label_til = tk.Label(self.frame2, text="Datum bis")
+        self.label_til.pack(anchor='nw')
+
+        self.date_end = tk.StringVar()
+        self.entry_end = tk.Entry(self.frame2, width=10)
+        self.entry_end['textvariable'] = self.date_end
+        self.entry_end.pack()
+
+        self.frame1.pack(side='left', padx=10, pady=20)
+        self.frame2.pack(side='left', padx=10, pady=20)
+
+        return self.entry_start
+
+    def apply(self):
+        self.from_date = self.date_begin.get()
+        self.until_date = self.date_end.get()
+        self.result = 1
 
 
 def display_report(report):
@@ -62,15 +69,13 @@ def display_report(report):
     root.mainloop()
 
 
-def input_timespan():
-    root = tk.Tk()
-    root.title("Eingabe der Zeitspanne")
-    root.columnconfigure(0, weight=1)
-    root.rowconfigure(0, weight=1)
+def input_timespan(root):
 
-    input_dialog = TimeSpanDialog(root)
-
-    root.mainloop()
-    from_date = input_dialog.date_begin.get()
-    til_date = input_dialog.date_end.get()
-    return from_date, til_date
+    input_dialog = TimeSpanDialog(root,
+                                  title="Zeitspanne eingeben")
+    if input_dialog.result is not None:
+        from_date = input_dialog.from_date
+        til_date = input_dialog.until_date
+        return from_date, til_date
+    else:
+        return "xx.xx.yyyy", "aa.bb.cccc"
