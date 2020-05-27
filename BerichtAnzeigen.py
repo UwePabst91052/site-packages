@@ -26,6 +26,11 @@ class ReportDialog(tk.Frame):
 
 
 class TimeSpanDialog(Dialog):
+    def __init__(self, parent, title=None, min_date=None, max_date=None):
+        self.min_date = min_date
+        self.max_date = max_date
+        super().__init__(parent, title)
+
     def body(self, parent):
         self.frame1 = tk.Frame(parent)
         self.label_from = tk.Label(self.frame1, text="Datum von")
@@ -34,6 +39,7 @@ class TimeSpanDialog(Dialog):
         self.date_begin = tk.StringVar()
         self.entry_start = tk.Entry(self.frame1, width=10)
         self.entry_start['textvariable'] = self.date_begin
+        self.date_begin.set(self.min_date)
         self.entry_start.pack()
 
         self.frame2 = tk.Frame(parent)
@@ -43,6 +49,7 @@ class TimeSpanDialog(Dialog):
         self.date_end = tk.StringVar()
         self.entry_end = tk.Entry(self.frame2, width=10)
         self.entry_end['textvariable'] = self.date_end
+        self.date_end.set(self.max_date)
         self.entry_end.pack()
 
         self.frame1.pack(side='left', padx=10, pady=20)
@@ -69,13 +76,14 @@ def display_report(report):
     root.mainloop()
 
 
-def input_timespan(root):
+def input_timespan(root, min_date, max_date):
 
     input_dialog = TimeSpanDialog(root,
-                                  title="Zeitspanne eingeben")
+                                  title="Zeitspanne eingeben",
+                                  min_date=min_date, max_date=max_date)
     if input_dialog.result is not None:
         from_date = input_dialog.from_date
         til_date = input_dialog.until_date
         return from_date, til_date
     else:
-        return "xx.xx.yyyy", "aa.bb.cccc"
+        return "not set", "not set"
