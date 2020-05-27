@@ -29,17 +29,16 @@ def create_work_dictionary(workpackages):
                 report[key] += value
             else:
                 report.update({key: value})
-    return report
+    return list(report.keys())
 
 
 def report_work_summary(employee_name, workpackages):
     """ starts the print process bay calling sub functions """
     global text_output
     # create dictonary
-    report = create_work_dictionary(workpackages)
+    keylist = create_work_dictionary(workpackages)
 
     # print report header
-    keylist = list(report.keys())
     from_date = keylist[0]
     until_date = keylist[len(keylist) - 1]
     text_output = report_work_summary_timespan(employee_name, workpackages, from_date, until_date)
