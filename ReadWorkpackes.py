@@ -12,6 +12,7 @@ def read_workpackages(file):
     for line in file:
         line = line.strip()
         if line == "</Workpackage>":
+            cur_wp.sort_workdays()
             workpackages.append(cur_wp)
         elif "<Name>" in line:
             name = get_tag_content(line)

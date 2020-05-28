@@ -68,6 +68,9 @@ class Date:
         date = Date(other)
         return self.days >= date.days
 
+    def __lt__(self, other):
+        return self.days < other.days
+
 
 class Time:
     """ This class gets a time string splits it to its components
@@ -328,6 +331,9 @@ class Workpackage:
             self.cur_workday.finish_worktime(time_str)
         else:
             print("You have to enter a workday, first!")
+
+    def sort_workdays(self):
+        self.workdays.sort(key=lambda wd: wd.date)
 
     def __str__(self):
         wp_duration = 0
