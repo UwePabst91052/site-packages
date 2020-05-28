@@ -339,10 +339,11 @@ class Workpackage:
     def __eq__(self, other):
         return other == self.wp_name
 
-    def get_wpckg_duration_str(self):
+    def get_wpckg_duration_str(self, from_date, until_date):
         wp_duration = 0
         for wd in self.workdays:
-            wp_duration += wd.get_duration()
+            if from_date <= wd.date <= until_date:
+                wp_duration += wd.get_duration()
         str_out = Time.convert_seconds_to_time_string(wp_duration)
         return self.wp_name, str_out
 

@@ -84,7 +84,7 @@ def report_workday_summary(date, workpackages):
     return text_output
 
 
-def report_workpackage_summary(wp_name, workpackages):
+def report_workpackage_summary(wp_name, workpackages, from_date, until_date):
     """ starts the print process for displaying all worktimes for a specific workpackage """
     global text_output
     text_output = ""
@@ -93,7 +93,7 @@ def report_workpackage_summary(wp_name, workpackages):
     for wp in workpackages:
         if wp.wp_name == wp_name:
             print_workpackage_worktimes(wp)
-            print_workpackage_summary(wp)
+            print_workpackage_summary(wp, from_date, until_date)
     return text_output
 
 
@@ -233,7 +233,7 @@ def print_worktime_summary(workpackages, from_date, until_date):
     text_output += print_layout_justify(row, 'center')
     text_output += frame_seperator
     for wp in workpackages:
-        name, duration = wp.get_wpckg_duration_str()
+        name, duration = wp.get_wpckg_duration_str(from_date, until_date)
         row = ""
         row = create_table_row(sum_col_cfg, row, 0, name, 'left')
         row += "|"
@@ -246,12 +246,12 @@ def print_worktime_summary(workpackages, from_date, until_date):
     text_output += frame_seperator
 
 
-def print_workpackage_summary(workpackage):
+def print_workpackage_summary(workpackage, from_date, until_date):
     global text_output
     print_report_title("Summe Arbeitspaket")
     row = ""
     # text_output += frame_seperator
-    name, duration = workpackage.get_wpckg_duration_str()
+    name, duration = workpackage.get_wpckg_duration_str(from_date, until_date)
     row = ""
     row = create_table_row(sum_col_cfg, row, 0, name, 'left')
     row += "| "
