@@ -84,17 +84,21 @@ class Message:
 
     def _process_response_json_content(self):
         content = self.response
-        response = None
+        response = "unknown"
         if "action" in content:
             response = content.get("value")
             print(f"got message: {response}")
-        if "result" in content:
+            self.parent.display_received_message(response)
+        elif "result" in content:
             response = content.get("result")
             print(f"got result: {response}")
-        self.parent.display_received_message(response)
-        self._jsonheader_len = None
-        self.jsonheader = None
-        self.response = None
+            self.parent.display_received_message(response)
+        elif "userlist" in content:
+            user_list = content.get("userlist")
+            usernames = []
+            for user in user_list:
+                usernames.append(user.get("user"))
+            self.parent.display_chatters(usernames)
 
     def _process_response_binary_content(self):
         content = self.response
@@ -119,6 +123,10 @@ class Message:
         if self.jsonheader:
             if self.response is None:
                 self.process_response()
+
+        self._jsonheader_len = None
+        self.jsonheader = None
+        self.response = None
 
     def write(self):
         if not self._request_queued:

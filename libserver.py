@@ -86,6 +86,12 @@ class Message:
         action = self.request.get("action")
         if action == "send":
             content = {"result": self.response_text}
+        elif action == "login":
+            user_list = []
+            for client in self.client_list:
+                user = {"user": client[3]}
+                user_list.append(user)
+            content = {"userlist": user_list}
         else:
             content = {"result": f'Error: invalid action "{action}".'}
         content_encoding = "utf-8"
@@ -154,6 +160,18 @@ class Message:
                         if len(self.client_list) <= 1:
                             self.response_text = "No other client connected"
                         self.create_response()
+            elif action == "login":
+                user = self.request.get("value")
+                print("logged in user: {0}".format(user))
+                index = 0
+                for client in self.client_list:
+                    if self.addr == client[1]:
+                        client += (user,)
+                        self.client_list[index] = client
+                    index += 1
+                if not self.response_created:
+                    self.response_text = user
+                    self.create_response()
             elif action == "disconnect":
                 self.close()
             self._jsonheader_len = None
@@ -234,8 +252,14 @@ class Message:
             # Binary or unknown content-type
             response = self._create_response_binary_content()
         message = self._create_message(**response)
-        self.response_created = True
-        self._send_buffer += message
+        action = self.request.get("action")
+        if action == "login":
+            for client in self.client_list:
+                client[2].response_created = True
+                client[2].add_to_send_buffer(message)
+        else:
+            self.response_created = True
+            self._send_buffer += message
 
     def create_forwarding(self):
         forward = self._create_forwarding_json_content()
