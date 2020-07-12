@@ -6,10 +6,11 @@ import struct
 
 
 class Message:
-    def __init__(self, selector, sock, addr):
+    def __init__(self, selector, sock, addr, parent):
         self.selector = selector
         self.sock = sock
         self.addr = addr
+        self.parent = parent
         self._recv_buffer = b""
         self._send_buffer = b""
         self._jsonheader_len = None
@@ -86,7 +87,7 @@ class Message:
         action = self.request.get("action")
         if action == "send":
             content = {"result": self.response_text}
-        elif action == "login":
+        elif action in ("login", "disconnect"):
             user_list = []
             for client in self.client_list:
                 user = {"user": client[3]}
@@ -162,7 +163,7 @@ class Message:
                         self.create_response()
             elif action == "login":
                 user = self.request.get("value")
-                print("logged in user: {0}".format(user))
+                self.parent.add_new_connection(self.addr, user)
                 index = 0
                 for client in self.client_list:
                     if self.addr == client[1]:
@@ -173,6 +174,14 @@ class Message:
                     self.response_text = user
                     self.create_response()
             elif action == "disconnect":
+                for client in self.client_list:
+                    if self.addr == client[1]:
+                        user = client[3]
+                        self.client_list.remove(client)
+                        self.parent.remove_closed_connection(user)
+                if not self.response_created:
+                    self.response_text = "User {0} logged out".format(user)
+                    self.create_response()
                 self.close()
             self._jsonheader_len = None
             self.jsonheader = None
@@ -253,7 +262,7 @@ class Message:
             response = self._create_response_binary_content()
         message = self._create_message(**response)
         action = self.request.get("action")
-        if action == "login":
+        if action in ("login", "disconnect"):
             for client in self.client_list:
                 client[2].response_created = True
                 client[2].add_to_send_buffer(message)
