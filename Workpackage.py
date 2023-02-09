@@ -8,6 +8,7 @@
     - Workpackage.....contains a list of workdays
 
 """
+from datetime import date as dt
 
 
 class Date:
@@ -21,6 +22,7 @@ class Date:
         self.year = 2020
         self.days = 0
         self.is_valid = False
+        self.weekday = 0
         self.validate(str_date)
 
     def validate(self, date):
@@ -34,6 +36,7 @@ class Date:
                 if self.month in range(1, 13):
                     self.is_valid = True
         self.days = self.year * 365 + self.daysOfMonth[self.month] + self.day
+        self.weekday = dt(self.year, self.month, self.day).weekday()
 
     def __str__(self):
         if self.is_valid:
@@ -271,10 +274,13 @@ class Workday:
     def get_workday_balance(self):
         self.sum_duration = self.get_duration()
         seven_hours = 7 * 3600
-        if self.sum_duration >= seven_hours:
-            return self.sum_duration - seven_hours
+        if self.date.weekday == 5:
+            return self.sum_duration
         else:
-            return 0 - seven_hours + self.sum_duration
+            if self.sum_duration >= seven_hours:
+                return self.sum_duration - seven_hours
+            else:
+                return 0 - seven_hours + self.sum_duration
 
     def get_duration_str(self):
         """ returns the summarized worktime of the workday in time format """
