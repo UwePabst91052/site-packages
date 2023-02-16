@@ -19,7 +19,7 @@ class Date:
         self.daysOfMonth = [0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
         self.day = 0
         self.month = 0
-        self.year = 2020
+        self.year = 2021
         self.days = 0
         self.is_valid = False
         self.weekday = 0
@@ -28,13 +28,15 @@ class Date:
     def validate(self, date):
         """splits the incoming string into its components and validates them"""
         splitted = date.split('.')
-        count = len(date)
+        count = len(splitted)
         if count >= 2:
             self.day = int(splitted[0])
             if self.day in range(1, 32):
                 self.month = int(splitted[1])
                 if self.month in range(1, 13):
                     self.is_valid = True
+            if count == 3:
+                self.year = int(splitted[2])
         self.days = self.year * 365 + self.daysOfMonth[self.month] + self.day
         self.weekday = dt(self.year, self.month, self.day).weekday()
 
@@ -74,6 +76,14 @@ class Date:
     def __lt__(self, other):
         return self.days < other.days
 
+    def __gt__(self, other):
+        date = Date(other)
+        isgreater = True
+        if self.year <= date.year:
+            if self.month > date.month:
+                if self.day > date.day:
+                    isnotequal = False
+        return isgreater
 
 class Time:
     """ This class gets a time string splits it to its components
@@ -91,21 +101,18 @@ class Time:
         count = len(splitted)
         if count >= 2:
             self.hour = int(splitted[0])
-            if self.hour in range(0, 23):
+            if self.hour in range(0, 24):
                 self.minute = int(splitted[1])
-                if self.minute in range(0, 59):
+                if self.minute in range(0, 60):
                     if count == 3:
-                        self.second = int(splitted[2])
-                        if self.second in range(0, 59):
-                            self.is_valid = True
-                    else:
-                        self.is_valid = True
+                        self.second = 0
+                    self.is_valid = True
 
     def __str__(self):
         if self.is_valid:
-            str_out = "{0:02d}:{1:02d}:{2:02d}".format(self.hour, self.minute, self.second)
+            str_out = "{0:02d}:{1:02d}".format(self.hour, self.minute)
         else:
-            str_out = "Erwartetes Format: hh.mm.ss"
+            str_out = "Erwartetes Format: hh.mm"
         return str_out
 
     def __ne__(self, other):
@@ -131,14 +138,13 @@ class Time:
         negative = seconds < 0
         if negative:
             seconds *= -1
-        second = seconds % 60
         seconds //= 60
         minute = seconds % 60
         hour = seconds // 60
         if negative:
-            time_str = "-{0:02d}:{1:02d}:{2:02d}".format(hour, minute, second)
+            time_str = "-{0:02d}:{1:02d}".format(hour, minute)
         else:
-            time_str = "{0:02d}:{1:02d}:{2:02d}".format(hour, minute, second)
+            time_str = "{0:02d}:{1:02d}".format(hour, minute)
         return time_str
 
     def get_seconds(self):
@@ -150,7 +156,7 @@ class Time:
 
     def set_seconds(self, seconds):
         """ converts the incoming seconds to a time"""
-        self.second = seconds % 60
+        self.second = 0
         seconds //= 60
         self.minute = seconds % 60
         self.hour = seconds // 60
@@ -192,11 +198,10 @@ class Worktime:
     def get_duration_str(self):
         """ returns the difference between start and end time in time format """
         duration = self.get_duration()
-        second = duration % 60
         duration //= 60
         minute = duration % 60
         hour = duration // 60
-        str_out = "{0:02d}:{1:02d}:{2:02d}".format(hour, minute, second)
+        str_out = "{0:02d}:{1:02d}".format(hour, minute)
         return str_out
 
 
@@ -221,6 +226,7 @@ class Workday:
         self.is_running = False
 
     def begin_working(self, time_str):
+        self.cur_worktime = None
         self.cur_worktime = Worktime()
         self.cur_worktime.set_start_time(time_str)
         self.is_running = True
@@ -273,14 +279,17 @@ class Workday:
 
     def get_workday_balance(self):
         self.sum_duration = self.get_duration()
-        seven_hours = 7 * 3600
+        if (self.date > "28.02.2021"):
+            daily_hours = 8 * 3600
+        else:
+            daily_hours = 7 * 3600
         if self.date.weekday == 5:
             return self.sum_duration
         else:
-            if self.sum_duration >= seven_hours:
-                return self.sum_duration - seven_hours
+            if self.sum_duration >= daily_hours:
+                return self.sum_duration - daily_hours
             else:
-                return 0 - seven_hours + self.sum_duration
+                return 0 - daily_hours + self.sum_duration
 
     def get_duration_str(self):
         """ returns the summarized worktime of the workday in time format """
@@ -328,7 +337,10 @@ class Workpackage:
 
     def begin_working(self, time_str):
         if self.cur_workday is not None:
-            self.cur_workday.begin_working(time_str)
+            try:
+                self.cur_workday.begin_working(time_str)
+            except ValueError:
+                print("ValueError on date {0} and time {1}".format(self.cur_workday.date, time_str))
         else:
             print("You have to enter a workday, first!")
 
@@ -380,3 +392,8 @@ class Workpackage:
             if from_date <= wd.date <= til_date:
                 wp_balance += wd.get_workday_balance()
         return wp_balance
+
+    def delete_workdays_wo_worktimes(self):
+        for wd in self.workdays:
+            if len(wd.worktimes) == 0:
+                self.workdays.remove(wd)
