@@ -9,6 +9,7 @@ import Workpackage as Wp
 def read_workpackages(file):
     workpackages = []
     cur_wp = None
+    check_worktimes = False
     for line in file:
         line = line.strip()
         if line == "</Workpackage>":
@@ -19,7 +20,12 @@ def read_workpackages(file):
             cur_wp = Wp.Workpackage(name)
         elif "<Date>" in line:
             date = get_tag_content(line)
-            cur_wp.add_workday(date)
+            check_worktimes = True
+        elif ("<Count>" in line) and check_worktimes:
+            count = int(get_tag_content(line))
+            if count > 0:
+                cur_wp.add_workday(date)
+            check_worktimes = False
         elif "<Begin>" in line:
             time = get_tag_content(line)
             cur_wp.begin_working(time)
