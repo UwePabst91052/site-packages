@@ -17,6 +17,7 @@ class Date:
 
     def __init__(self, str_date):
         self.daysOfMonth = [0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
+        self.daysOfMonthLeap = [0, 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
         self.day = 0
         self.month = 0
         self.year = 2021
@@ -37,7 +38,11 @@ class Date:
                     self.is_valid = True
             if count == 3:
                 self.year = int(splitted[2])
-        self.days = self.year * 365 + self.daysOfMonth[self.month] + self.day
+        if (self.year % 4) > 0:
+            monthDays = self.daysOfMonth
+        else:
+            monthDays = self.daysOfMonthLeap
+        self.days = self.year * 365 + monthDays[self.month] + self.day
         self.weekday = dt(self.year, self.month, self.day).weekday()
 
     def __str__(self):
@@ -74,7 +79,8 @@ class Date:
         return self.days >= date.days
 
     def __lt__(self, other):
-        return self.days < other.days
+        date = Date(other)
+        return self.days < date.days
 
     def __gt__(self, other):
         date = Date(other)
@@ -279,7 +285,7 @@ class Workday:
 
     def get_workday_balance(self):
         self.sum_duration = self.get_duration()
-        if (self.date > "28.02.2021"):
+        if (self.date > "28.02.2021") and (self.date < "01.08.2024"):
             daily_hours = 8 * 3600
         else:
             daily_hours = 7 * 3600
@@ -351,7 +357,7 @@ class Workpackage:
             print("You have to enter a workday, first!")
 
     def sort_workdays(self):
-        self.workdays.sort(key=lambda wd: wd.date)
+        self.workdays.sort(key=lambda wd: wd.date.days)
 
     def __str__(self):
         wp_duration = 0

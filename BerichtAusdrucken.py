@@ -35,7 +35,7 @@ def create_work_dictionary(workpackages):
     return list(report.keys())
 
 def get_date_from_key(item):
-    return Wp.Date(item[0])
+    return str(Wp.Date(item[0]))
 
 def create_work_merged(workpackages, from_date, until_date):
     report = {}
