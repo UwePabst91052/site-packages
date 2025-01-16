@@ -276,6 +276,16 @@ class Workday:
         # then update current worktime with last worktime from list
         self.cur_worktime = self.worktimes[count - 1]
 
+    def remove_duplicates(self):
+        """ This method removes a worktime if it is already in the list """
+        for wtOuter in self.worktimes:
+            time_begin = str(wtOuter.start_time)
+            time_end = str(wtOuter.end_time)
+            for wtInner in self.worktimes:
+                if wtInner.start_time == time_begin and \
+                   wtInner.end_time == time_end and     \
+                   wtInner != wtOuter:
+                    self.worktimes.remove(wtInner)
     def get_duration(self):
         """ returns the summarized worktime of the workday in seconds """
         self.sum_duration = 0
@@ -350,6 +360,10 @@ class Workpackage:
         else:
             print("You have to enter a workday, first!")
 
+    def remove_duplicate_worktimes(self):
+        if self.cur_workday is not None:
+            self.cur_workday.remove_duplicates()
+            self.cur_workday.correct_list()
     def finish_working(self, time_str):
         if self.cur_workday is not None:
             self.cur_workday.finish_worktime(time_str)

@@ -32,6 +32,8 @@ def read_workpackages(file):
         elif "<End>" in line:
             time = get_tag_content(line)
             cur_wp.finish_working(time)
+        elif "</Worktimes>" in line:
+            cur_wp.remove_duplicate_worktimes()
     return workpackages
 
 
